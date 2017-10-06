@@ -45,25 +45,30 @@ app.controller('mainController', function($scope) {
       'path': 'mmd/motions/schrodingeiger_no_koneko/Schrodingeiger_no_Koneko2.vmd',
       'selected': true,
       'sourceUrl': 'http://www.nicovideo.jp/watch/sm20114513',
+      'audio': 'mmd/audios/koneko.mp3',
     },
     {
       'name': 'nekomimi switch',
       'path': 'mmd/motions/nekomimi_switch/nekomimi_mikuv2.vmd',
       'selected': false,
       'sourceUrl': 'http://www.nicovideo.jp/watch/sm14365789',
+      'audio': 'mmd/audios/switch.mp3',
     },
     {
       'name': 'Masked BitcH',
       'path': 'mmd/motions/masked_bitch/maskedBitch.vmd',
       'selected': false,
       'sourceUrl': 'http://www.nicovideo.jp/watch/sm20093796',
+      'audio': 'mmd/audios/bitch.mp3',
     }
   ];
 
-  // default model
+  // 默认模型
   $scope.modelFile = $scope.models[0]['path'];
-  // default dance
+  // 默认动作
   $scope.vmdFiles = [$scope.vmds[0]['path']];
+  //默认音频
+  $scope.audioFiles = [$scope.vmds[0]['audio']];
 
   var mouseX = 0, mouseY = 0;
 
@@ -74,10 +79,18 @@ app.controller('mainController', function($scope) {
 
   function init() {
     $scope.isLoading = true;
-
+//创建容器
     container = document.createElement('div');
     container.setAttribute("id", "mmd");
     document.body.appendChild(container);
+//创建不可见音乐标签
+    var audioplayer = document.createElement('audio');
+    audioplayer.setAttribute("id", "danceaudioplayer");
+    document.body.appendChild(audioplayer);
+    audioplayer.style.display = "none";
+    audioplayer.style.display = "inline";
+    //audioplayer.play();
+
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
     camera.position.z = 25;
@@ -160,6 +173,9 @@ app.controller('mainController', function($scope) {
 
         helper.setPhysics(mesh);
       }
+      //首次加载自动播放音频
+      audioplayer.src = $scope.audioFiles;
+      audioplayer.play();
 
       helper.unifyAnimationDuration({ afterglow: 2.0 });
 
@@ -207,7 +223,7 @@ app.controller('mainController', function($scope) {
     }
   }
 
-  // easy mobile device detection
+  // 判断播放设备
   function isMobileDevice() {
 
     if (navigator === undefined || navigator.userAgent === undefined) {
@@ -233,15 +249,17 @@ app.controller('mainController', function($scope) {
 
     scene.remove(mesh);
     var mmd = document.getElementById("mmd");
+    var audio = document.getElementById("danceaudioplayer");
     document.body.removeChild(mmd);
+    document.body.removeChild(audio);
 
-    // set model
+    // 重播设置模型
     angular.forEach($scope.models, function(value, key) {
       if (value.selected == true) $scope.modelFile = value.path;
     });
-    // set dance
+    // 重播设置动作和音频
     angular.forEach($scope.vmds, function(value, key) {
-      if (value.selected == true) $scope.vmdFiles.push(value.path);
+      if (value.selected == true) $scope.vmdFiles.push(value.path); $scope.audioFiles = value.audio;
     });
 
     init();
@@ -259,6 +277,7 @@ app.controller('mainController', function($scope) {
       value.selected = false;
     });
     $scope.vmds[index].selected = true;
+   // alert($scope.vmds[index].audio);
   }
 
 });
